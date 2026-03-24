@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>GST Form</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="container mt-4">
+
+<form th:action="@{/gst-ui/save}" method="post" th:object="${gst}">
+
+  <input type="hidden" th:field="*{id}"/>
+
+  <div class="mb-3">
+    <label>GSTIN</label>
+    <input type="text" th:field="*{gstIn}" class="form-control"/>
+  </div>
+
+  <div class="mb-3">
+    <label>Amount</label>
+    <input type="number" th:field="*{amount}" class="form-control"/>
+  </div>
+
+  <div class="mb-3">
+    <label>GST %</label>
+    <input type="number" th:field="*{gstTaxPercentage}" class="form-control"/>
+  </div>
+
+  <div class="mb-3">
+    <label>Buyer State Code</label>
+    <input type="text" th:field="*{buyerStateCode}" class="form-control"/>
+  </div>
+
+  <!-- Seller auto-filled -->
+  <div class="mb-3">
+    <label>Seller State Code</label>
+    <input type="text" th:field="*{sellerStateCode}" class="form-control" readonly/>
+  </div>
+
+  <button class="btn btn-success">Validate & Save</button>
+  <a href="/gst-ui" class="btn btn-secondary">Back</a>
+
+</form>
+
+<!-- ✅ RESULT SECTION -->
+<div class="mt-4" th:if="${gst.totalAmount != null}">
+
+  <h5>Result</h5>
+
+  <div class="alert alert-success">
+    <p><b>IGST:</b> <span th:text="${gst.igst}"></span></p>
+    <p><b>CGST:</b> <span th:text="${gst.cgst}"></span></p>
+    <p><b>SGST:</b> <span th:text="${gst.sgst}"></span></p>
+    <p><b>Total Amount:</b> <span th:text="${gst.totalAmount}"></span></p>
+  </div>
+
+</div>
+
+</body>
+</html>
