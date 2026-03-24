@@ -9,12 +9,13 @@ import lombok.Data;
 @Entity
 @Data
 public class GstTracking {
-    private  double amount;
-    private double gstIn;
-    private double byuerStatecode;
-    private double sellerStatecode;
-    private double gstTaxPercentage;
-    private double gstTaxAmount;
+    private  Double amount;
+    private Double gstAmount;
+    private Double buyerStateCode;
+    private Double sellerStateCode;
+    private Double gstTaxPercentage;
+   private String gstIn;
+    private Double totalAmount;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
