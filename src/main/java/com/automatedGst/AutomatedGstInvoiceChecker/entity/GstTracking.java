@@ -9,6 +9,8 @@ import lombok.Data;
 @Entity
 @Data
 public class GstTracking {
+
+
     private Double amount;
     private Double gstAmount;
     private String buyerStateCode;
@@ -16,8 +18,15 @@ public class GstTracking {
     private Double gstTaxPercentage;
     private String gstIn;
     private Double totalAmount;
+    private Double igst;
+    private Double cgst;
+    private Double sgst;
+    private String complianceStatus;
+    private String complianceRemarks;
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
 
 }

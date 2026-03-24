@@ -8,8 +8,6 @@
 
 <body class="container mt-4">
 
-<h3 th:text="${gst.id == null} ? 'Add GST' : 'Edit GST'"></h3>
-
 <form th:action="@{/gst-ui/save}" method="post" th:object="${gst}">
 
   <input type="hidden" th:field="*{id}"/>
@@ -34,24 +32,43 @@
     <input type="text" th:field="*{buyerStateCode}" class="form-control"/>
   </div>
 
+  <!-- Seller auto-filled -->
   <div class="mb-3">
     <label>Seller State Code</label>
     <input type="text" th:field="*{sellerStateCode}" class="form-control"/>
   </div>
 
-  <button class="btn btn-success">Save</button>
+  <button class="btn btn-success">Validate & Save</button>
   <a href="/gst-ui" class="btn btn-secondary">Back</a>
 
 </form>
 
-<hr>
+<!-- RESULT SECTION -->
+<div class="mt-4" th:if="${gst.complianceStatus != null}">
 
-<form th:action="@{/gst-ui/validate}" method="post" th:object="${gst}">
-  <input type="hidden" th:field="*{id}"/>
-  <input type="hidden" th:field="*{gstIn}"/>
+  <h5>Compliance Scorecard</h5>
 
-  <button class="btn btn-info">Validate & Calculate</button>
-</form>
+  <div th:class="${gst.complianceStatus == 'PASS'} ? 'alert alert-success' : 'alert alert-danger'">
+
+    <p>
+      <b>Status:</b>
+      <span th:text="${gst.complianceStatus}"></span>
+    </p>
+
+    <p>
+      <b>Remarks:</b>
+      <span th:text="${gst.complianceRemarks}"></span>
+    </p>
+
+    <hr>
+
+    <p><b>IGST:</b> <span th:text="${gst.igst}"></span></p>
+    <p><b>CGST:</b> <span th:text="${gst.cgst}"></span></p>
+    <p><b>SGST:</b> <span th:text="${gst.sgst}"></span></p>
+    <p><b>Total:</b> <span th:text="${gst.totalAmount}"></span></p>
+
+  </div>
+</div>
 
 </body>
 </html>

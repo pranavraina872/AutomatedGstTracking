@@ -53,24 +53,49 @@ import java.util.List;
 
         private void calculateGst(GstTracking gstTracking) {
 
-            if (gstTracking.getAmount() != null && gstTracking.getGstTaxPercentage() != null) {
-
-                double taxAmount = (gstTracking.getAmount() * gstTracking.getGstTaxPercentage()) / 100;
-
-                // ✅ Check intra-state vs inter-state
-                if (gstTracking.getBuyerStateCode() != null &&
-                        gstTracking.getSellerStateCode() != null &&
-                        gstTracking.getBuyerStateCode().equals(gstTracking.getSellerStateCode())) {
-
-                    // CGST + SGST
-                    gstTracking.setGstAmount(taxAmount); // total GST
-                } else {
-                    // IGST
-                    gstTracking.setGstAmount(taxAmount);
-                }
-
-                gstTracking.setTotalAmount(gstTracking.getAmount() + taxAmount);
+            // ✅ 1. Validate Inputs
+            if (gstTracking.getAmount() == null || gstTracking.getGstTaxPercentage() == null) {
+                throw new GstApiException("Amount or GST % cannot be null");
             }
+
+            // ✅ 2. Validate GST Rate (Compliance Rule)
+            List<Double> validRates = List.of(0.0, 5.0, 12.0, 18.0, 28.0);
+
+            if (!validRates.contains(gstTracking.getGstTaxPercentage())) {
+                throw new GstApiException("Invalid GST Rate. Allowed: 0, 5, 12, 18, 28");
+            }
+
+            // ✅ 3. Validate GSTIN Format
+            if (gstTracking.getGstIn() == null || gstTracking.getGstIn().length() != 15) {
+                throw new GstApiException("Invalid GSTIN format");
+            }
+
+            // ✅ 4. Validate State Codes
+            if (gstTracking.getBuyerStateCode() == null || gstTracking.getSellerStateCode() == null) {
+                throw new GstApiException("State codes are required");
+            }
+
+            double taxAmount = (gstTracking.getAmount() * gstTracking.getGstTaxPercentage()) / 100;
+
+            // ✅ 5. Tax Split Logic (Compliance)
+            if (gstTracking.getBuyerStateCode().equals(gstTracking.getSellerStateCode())) {
+
+                // CGST + SGST
+                gstTracking.setCgst(taxAmount / 2);
+                gstTracking.setSgst(taxAmount / 2);
+                gstTracking.setIgst(0.0);
+
+            } else {
+
+                // IGST
+                gstTracking.setIgst(taxAmount);
+                gstTracking.setCgst(0.0);
+                gstTracking.setSgst(0.0);
+            }
+
+            // ✅ 6. Set totals
+            gstTracking.setGstAmount(taxAmount);
+            gstTracking.setTotalAmount(gstTracking.getAmount() + taxAmount);
         }
 
 
@@ -186,7 +211,7 @@ import java.util.List;
             entity.setGstIn(data.getGstin());
 
             if (data.getPradr() != null && data.getPradr().getAddr() != null) {
-                entity.setSellerStateCode(data.getPradr().getAddr().getSt());
+                entity.setSellerStateCode(data.getGstin().substring(0, 2));
             }
 
             return entity;
@@ -194,25 +219,46 @@ import java.util.List;
 
         public GstTracking validateAndProcess(GstTracking gstTracking) {
 
-            // ✅ Step 1: Validate GST from Sandbox
+            StringBuilder remarks = new StringBuilder();
+            boolean isValid = true;
+
+            // ✅ GST API Validation
             GstData gstData = fetchGstDetails(gstTracking.getGstIn());
 
             if (gstData == null || gstData.getGstin() == null) {
-                throw new GstApiException("Invalid GSTIN from sandbox");
+                throw new GstApiException("Invalid GSTIN");
             }
 
-            // ✅ Step 2: Extract State Codes from GSTIN
+            // ✅ GST Status Check
+            if (!"Active".equalsIgnoreCase(gstData.getSts())) {
+                remarks.append("GST is not Active. ");
+                isValid = false;
+            }
+
+            // ✅ State extraction
             String sellerState = gstTracking.getGstIn().substring(0, 2);
-
-            // OPTIONAL: if you want buyer GST also
-            // String buyerState = buyerGstin.substring(0, 2);
-
             gstTracking.setSellerStateCode(sellerState);
 
-            // ✅ Step 3: Calculate GST
+            // ✅ Tax Rate Validation
+            List<Double> validRates = List.of(0.0, 5.0, 12.0, 18.0, 28.0);
+
+            if (!validRates.contains(gstTracking.getGstTaxPercentage())) {
+                remarks.append("Invalid GST rate. ");
+                isValid = false;
+            }
+
+            // ✅ GST Calculation
             calculateGst(gstTracking);
 
-            // ✅ Step 4: Save
+            // ✅ Compliance Result
+            if (isValid) {
+                gstTracking.setComplianceStatus("PASS");
+                gstTracking.setComplianceRemarks("All validations passed");
+            } else {
+                gstTracking.setComplianceStatus("FAIL");
+                gstTracking.setComplianceRemarks(remarks.toString());
+            }
+
             return repo.save(gstTracking);
         }
     }

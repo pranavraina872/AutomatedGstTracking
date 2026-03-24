@@ -13,21 +13,30 @@
 
 <body class="container mt-4">
 
-<h3 class="mb-4">GST Records</h3>
+<!-- ✅ Header + Button -->
+<div class="d-flex justify-content-between mb-3">
+    <h3>GST Records</h3>
 
-<a href="/gst-ui/new" class="btn btn-primary mb-3">Add New</a>
+    <a href="/gst-ui/new" class="btn btn-primary">
+        ➕ Add New Record
+    </a>
+</div>
 
+<!-- ✅ Table -->
 <div class="card p-3">
-    <table class="table table-bordered">
-        <thead>
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
         <tr>
             <th>ID</th>
             <th>GSTIN</th>
             <th>Amount</th>
             <th>GST %</th>
-            <th>GST Amount</th>
+            <th>IGST</th>
+            <th>CGST</th>
+            <th>SGST</th>
             <th>Total</th>
-            <th>Action</th>
+            <th>Status</th>
+            <th>Actions</th>
         </tr>
         </thead>
 
@@ -37,12 +46,32 @@
             <td th:text="${g.gstIn}"></td>
             <td th:text="${g.amount}"></td>
             <td th:text="${g.gstTaxPercentage}"></td>
-            <td th:text="${g.gstAmount}"></td>
+
+            <!-- GST Split -->
+            <td th:text="${g.igst}"></td>
+            <td th:text="${g.cgst}"></td>
+            <td th:text="${g.sgst}"></td>
+
             <td th:text="${g.totalAmount}"></td>
 
+            <!-- Compliance Status -->
             <td>
-                <a th:href="@{/gst-ui/edit/{id}(id=${g.id})}" class="btn btn-warning btn-sm">Edit</a>
-                <a th:href="@{/gst-ui/delete/{id}(id=${g.id})}" class="btn btn-danger btn-sm">Delete</a>
+                <span th:if="${g.complianceStatus == 'PASS'}"
+                      class="badge bg-success">PASS</span>
+
+                <span th:if="${g.complianceStatus == 'FAIL'}"
+                      class="badge bg-danger">FAIL</span>
+            </td>
+
+            <!-- Actions -->
+            <td>
+                <a th:href="@{'/gst-ui/edit/' + ${g.id}}" class="btn btn-warning btn-sm">Edit</a>
+
+                <a th:href="@{'/gst-ui/delete/' + ${g.id}}" class="btn btn-danger btn-sm">Delete</a>
+
+                <a th:href="@{'/gst-ui/report/' + ${g.id}}" class="btn btn-info btn-sm">
+                    📄 PDF
+                </a>
             </td>
         </tr>
         </tbody>
