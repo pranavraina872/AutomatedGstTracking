@@ -1,87 +1,260 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <title>GST Form</title>
+  <title>GST Compliance</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #4c8bf5;
+      --primary-dark: #2f6fe4;
+      --accent: #7b61ff;
+      --bg: #f4f7fb;
+      --text: #2c3e50;
+    }
+
+    body {
+      background: linear-gradient(120deg, #eef2f7, #f8fbff);
+      font-family: "Inter", "Segoe UI", sans-serif;
+      color: var(--text);
+      animation: fadeIn 0.6s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .page-container {
+      max-width: 900px;
+      margin: 40px auto;
+    }
+
+    .card {
+      border-radius: 14px;
+      border: none;
+      background: rgba(255,255,255,0.9);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.12);
+    }
+
+    .card-header {
+      background: transparent;
+      border-bottom: 1px solid #eef1f6;
+      font-weight: 600;
+      font-size: 18px;
+    }
+
+    label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #5f6c7b;
+    }
+
+    .form-control {
+      border-radius: 10px;
+      border: 1px solid #e3e8ef;
+      padding: 10px;
+      font-size: 14px;
+      transition: all 0.25s ease;
+    }
+
+    .form-control:hover {
+      border-color: var(--primary);
+    }
+
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(76,139,245,0.15);
+      transform: scale(1.01);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border: none;
+      border-radius: 10px;
+      padding: 10px 18px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 8px 20px rgba(76,139,245,0.3);
+    }
+
+    .btn-outline-secondary {
+      border-radius: 10px;
+      transition: 0.3s;
+    }
+
+    .btn-outline-secondary:hover {
+      background: #f1f4f9;
+    }
+
+    .result-box {
+      animation: slideUp 0.5s ease;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .status-pass {
+      color: #16a34a;
+      font-weight: 600;
+    }
+
+    .status-fail {
+      color: #dc2626;
+      font-weight: 600;
+    }
+
+    .metric {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px dashed #e5eaf0;
+      font-size: 14px;
+      transition: 0.2s;
+    }
+
+    .metric:hover {
+      background: #f8fbff;
+      padding-left: 5px;
+    }
+
+    .insight-box {
+      background: linear-gradient(135deg, #eef4ff, #f7f9ff);
+      border-left: 4px solid var(--primary);
+      padding: 14px;
+      border-radius: 8px;
+      margin-top: 15px;
+      animation: fadeIn 0.6s ease;
+    }
+
+    .section-title {
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+  </style>
 </head>
 
-<body class="container mt-4">
+<body>
 
-<form th:action="@{/gst-ui/save}" method="post" th:object="${gst}">
+<div class="page-container">
 
-  <input type="hidden" th:field="*{id}"/>
+  <!-- FORM -->
+  <div class="card">
+    <div class="card-header">GST Compliance Form</div>
 
-  <div class="mb-3">
-    <label>GSTIN</label>
-    <input type="text" th:field="*{gstIn}" class="form-control"/>
+    <div class="card-body">
+
+      <form th:action="@{/gst-ui/save}" method="post" th:object="${gst}">
+
+        <input type="hidden" th:field="*{id}"/>
+
+        <div class="row g-3">
+
+          <div class="col-md-6">
+            <label>GSTIN</label>
+            <input type="text" th:field="*{gstIn}" class="form-control"/>
+          </div>
+
+          <div class="col-md-6">
+            <label>Amount</label>
+            <input type="number" th:field="*{amount}" class="form-control"/>
+          </div>
+
+          <div class="col-md-6">
+            <label>GST %</label>
+            <input type="number" th:field="*{gstTaxPercentage}" class="form-control"/>
+          </div>
+
+          <div class="col-md-6">
+            <label>Buyer State Code</label>
+            <input type="text" th:field="*{buyerStateCode}" class="form-control"/>
+          </div>
+
+          <div class="col-md-6">
+            <label>Seller State Code</label>
+            <input type="text" th:field="*{sellerStateCode}" class="form-control"/>
+          </div>
+
+        </div>
+
+        <div class="mt-4 d-flex gap-2">
+          <button class="btn btn-primary">Validate & Save</button>
+          <a href="/gst-ui" class="btn btn-outline-secondary">Back</a>
+        </div>
+
+      </form>
+
+    </div>
   </div>
 
-  <div class="mb-3">
-    <label>Amount</label>
-    <input type="number" th:field="*{amount}" class="form-control"/>
-  </div>
+  <!-- RESULT -->
+  <div class="mt-4 result-box" th:if="${gst.complianceStatus != null}">
 
-  <div class="mb-3">
-    <label>GST %</label>
-    <input type="number" th:field="*{gstTaxPercentage}" class="form-control"/>
-  </div>
+    <div class="card">
+      <div class="card-header">Compliance Scorecard</div>
 
-  <div class="mb-3">
-    <label>Buyer State Code</label>
-    <input type="text" th:field="*{buyerStateCode}" class="form-control"/>
-  </div>
+      <div class="card-body">
 
-  <!-- Seller auto-filled -->
-  <div class="mb-3">
-    <label>Seller State Code</label>
-    <input type="text" th:field="*{sellerStateCode}" class="form-control"/>
-  </div>
+        <p>
+          <b>Status:</b>
+          <span th:class="${gst.complianceStatus == 'PASS'} ? 'status-pass' : 'status-fail'"
+                th:text="${gst.complianceStatus}"></span>
+        </p>
 
-  <button class="btn btn-success">Validate & Save</button>
-  <a href="/gst-ui" class="btn btn-secondary">Back</a>
+        <p><b>Remarks:</b> <span th:text="${gst.complianceRemarks}"></span></p>
 
-</form>
+        <hr>
 
-<!-- RESULT SECTION -->
-<div class="mt-4" th:if="${gst.complianceStatus != null}">
+        <div class="metric">
+          <span>IGST</span>
+          <span th:text="${gst.igst}"></span>
+        </div>
 
-  <h5>Compliance Scorecard</h5>
+        <div class="metric">
+          <span>CGST</span>
+          <span th:text="${gst.cgst}"></span>
+        </div>
 
-  <div th:class="${gst.complianceStatus == 'PASS'} ? 'alert alert-success' : 'alert alert-danger'">
+        <div class="metric">
+          <span>SGST</span>
+          <span th:text="${gst.sgst}"></span>
+        </div>
 
-    <p>
-      <b>Status:</b>
-      <span th:text="${gst.complianceStatus}"></span>
-    </p>
+        <div class="metric">
+          <span><b>Total</b></span>
+          <span th:text="${gst.totalAmount}"></span>
+        </div>
 
-    <p>
-      <b>Remarks:</b>
-      <span th:text="${gst.complianceRemarks}"></span>
-    </p>
+        <div th:if="${gst.complianceScore != null}" class="insight-box">
 
-    <hr>
+          <div class="section-title">AI Insights</div>
 
-    <p><b>IGST:</b> <span th:text="${gst.igst}"></span></p>
-    <p><b>CGST:</b> <span th:text="${gst.cgst}"></span></p>
-    <p><b>SGST:</b> <span th:text="${gst.sgst}"></span></p>
-    <p><b>Total:</b> <span th:text="${gst.totalAmount}"></span></p>
+          <p><b>Risk Level:</b> <span th:text="${gst.riskLevel}"></span></p>
+          <p><b>Compliance Score:</b> <span th:text="${gst.complianceScore}"></span>%</p>
 
-  </div>
+        </div>
 
-  <div class="mt-3" th:if="${gst.complianceScore != null}">
-
-    <h5>AI Insights</h5>
-
-    <div class="alert alert-info">
-      <p><b>Risk Level:</b> <span th:text="${gst.riskLevel}"></span></p>
-      <p><b>Compliance Score:</b> <span th:text="${gst.complianceScore}"></span>%</p>
+      </div>
     </div>
 
   </div>
+
 </div>
-
-
 
 </body>
 </html>
