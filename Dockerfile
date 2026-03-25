@@ -1,10 +1,10 @@
-# 🛠️ Build Stage
+#  Build Stage
 FROM maven:3.8.5-eclipse-temurin-17 AS build
 WORKDIR /app
 COPY . .
 RUN mvn clean package -DskipTests
 
-# 🚀 Runtime Stage
+#  Runtime Stage
 FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
 
