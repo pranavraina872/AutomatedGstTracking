@@ -32,9 +32,9 @@ public class MlService {
     public void init() {
         try {
             trainModel();
-            System.out.println("✅ ML Model trained successfully");
+            System.out.println("ML Model trained successfully");
         } catch (Exception e) {
-            System.out.println("❌ ML Model failed: " + e.getMessage());
+            System.out.println(" ML Model failed: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -48,7 +48,6 @@ public class MlService {
 
         DataFrame df = DataFrame.of(amount, gstpercentage, sameState, riskLevel);
 
-        // ✅ FIX: define target properly
         Formula formula = Formula.lhs("riskLevel");
 
         model = RidgeRegression.fit(formula, df,0.01);
@@ -57,17 +56,14 @@ public class MlService {
     public String predictRisk(GstTracking gst) {
 
         try {
-            // ✅ FIX: correct sameState logic
             int sameStateValue = gst.getBuyerStateCode().equals(gst.getSellerStateCode()) ? 1 : 0;
 
-            // ✅ Create single-row DataFrame
             DataFrame input = DataFrame.of(
                     DoubleVector.of("amount", new double[]{gst.getAmount()}),
                     DoubleVector.of("gstpercentage", new double[]{gst.getGstTaxPercentage()}),
                     DoubleVector.of("sameState", new double[]{sameStateValue})
             );
 
-            // ✅ FIX: use row(0) instead of casting
             double prediction = model.predict(input)[0];
 
             return prediction == 1 ? "HIGH" : "LOW";
