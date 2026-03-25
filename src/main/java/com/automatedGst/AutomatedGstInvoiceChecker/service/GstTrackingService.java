@@ -56,31 +56,31 @@ import java.util.List;
 
         private void calculateGst(GstTracking gstTracking) {
 
-            // ✅ 1. Validate Inputs
+            // Validate Inputs
             if (gstTracking.getAmount() == null || gstTracking.getGstTaxPercentage() == null) {
                 throw new GstApiException("Amount or GST % cannot be null");
             }
 
-            // ✅ 2. Validate GST Rate (Compliance Rule)
+            //Validate GST Rate (Compliance Rule)
             List<Double> validRates = List.of(0.0, 5.0, 12.0, 18.0, 28.0);
 
             if (!validRates.contains(gstTracking.getGstTaxPercentage())) {
                 throw new GstApiException("Invalid GST Rate. Allowed: 0, 5, 12, 18, 28");
             }
 
-            // ✅ 3. Validate GSTIN Format
+            //Validate GSTIN Format
             if (gstTracking.getGstIn() == null || gstTracking.getGstIn().length() != 15) {
                 throw new GstApiException("Invalid GSTIN format");
             }
 
-            // ✅ 4. Validate State Codes
+            // Validate State Codes
             if (gstTracking.getBuyerStateCode() == null || gstTracking.getSellerStateCode() == null) {
                 throw new GstApiException("State codes are required");
             }
 
             double taxAmount = (gstTracking.getAmount() * gstTracking.getGstTaxPercentage()) / 100;
 
-            // ✅ 5. Tax Split Logic (Compliance)
+            // Tax Split Logic (Compliance)
             if (gstTracking.getBuyerStateCode().equals(gstTracking.getSellerStateCode())) {
 
                 // CGST + SGST
@@ -96,7 +96,7 @@ import java.util.List;
                 gstTracking.setSgst(0.0);
             }
 
-            // ✅ 6. Set totals
+            // Set totals
             gstTracking.setGstAmount(taxAmount);
             gstTracking.setTotalAmount(gstTracking.getAmount() + taxAmount);
         }
@@ -127,7 +127,7 @@ import java.util.List;
 
             } catch (HttpClientErrorException.BadRequest ex) {
 
-                // ✅ Extract API error message
+                //  Extract API error message
                 String responseBody = ex.getResponseBodyAsString();
 
                 if (responseBody.contains("Invalid GSTIN pattern")) {
@@ -225,24 +225,24 @@ import java.util.List;
             StringBuilder remarks = new StringBuilder();
             boolean isValid = true;
 
-            // ✅ GST API Validation
+            // GST API Validation
             GstData gstData = fetchGstDetails(gstTracking.getGstIn());
 
             if (gstData == null || gstData.getGstin() == null) {
                 throw new GstApiException("Invalid GSTIN");
             }
 
-            // ✅ GST Status Check
+            // GST Status Check
             if (!"Active".equalsIgnoreCase(gstData.getSts())) {
                 remarks.append("GST is not Active. ");
                 isValid = false;
             }
 
-            // ✅ State extraction
+            // State extraction
             String sellerState = gstTracking.getGstIn().substring(0, 2);
             gstTracking.setSellerStateCode(sellerState);
 
-            // ✅ Tax Rate Validation
+            // Tax Rate Validation
             List<Double> validRates = List.of(0.0, 5.0, 12.0, 18.0, 28.0);
 
             if (!validRates.contains(gstTracking.getGstTaxPercentage())) {
@@ -250,10 +250,10 @@ import java.util.List;
                 isValid = false;
             }
 
-            // ✅ GST Calculation
+            // GST Calculation
             calculateGst(gstTracking);
 
-            // ✅ Compliance Result
+            // Compliance Result
             if (isValid) {
                 gstTracking.setComplianceStatus("PASS");
                 gstTracking.setComplianceRemarks("All validations passed");
@@ -265,7 +265,7 @@ import java.util.List;
            String predictRisk= mlService.predictRisk(gstTracking);
             gstTracking.setRiskLevel(predictRisk);
 
-            // ✅ Compliance Score
+            // Compliance Score
             gstTracking.setComplianceScore(calculateComplianceScore(gstTracking, gstData));
 
             return repo.save(gstTracking);
