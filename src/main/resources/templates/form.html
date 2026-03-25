@@ -68,7 +68,20 @@
     <p><b>Total:</b> <span th:text="${gst.totalAmount}"></span></p>
 
   </div>
+
+  <div class="mt-3" th:if="${gst.complianceScore != null}">
+
+    <h5>AI Insights</h5>
+
+    <div class="alert alert-info">
+      <p><b>Risk Level:</b> <span th:text="${gst.riskLevel}"></span></p>
+      <p><b>Compliance Score:</b> <span th:text="${gst.complianceScore}"></span>%</p>
+    </div>
+
+  </div>
 </div>
+
+
 
 </body>
 </html>

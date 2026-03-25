@@ -23,6 +23,8 @@ public class GstTracking {
     private Double sgst;
     private String complianceStatus;
     private String complianceRemarks;
+    private String riskLevel;
+    private Integer complianceScore;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

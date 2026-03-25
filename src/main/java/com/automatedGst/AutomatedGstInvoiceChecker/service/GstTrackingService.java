@@ -27,6 +27,9 @@ import java.util.List;
         private final GstTrackingRepo repo;
 
         @Autowired
+        private MlService mlService;
+
+        @Autowired
         private GstTrackingRepo gstRepository;
 
         public GstTrackingService(SandboxConfig config, GstTrackingRepo repository) {
@@ -259,7 +262,41 @@ import java.util.List;
                 gstTracking.setComplianceRemarks(remarks.toString());
             }
 
+           String predictRisk= mlService.predictRisk(gstTracking);
+            gstTracking.setRiskLevel(predictRisk);
+
+            // ✅ Compliance Score
+            gstTracking.setComplianceScore(calculateComplianceScore(gstTracking, gstData));
+
             return repo.save(gstTracking);
+        }
+
+        private int calculateComplianceScore(GstTracking gst, GstData gstData) {
+
+            int score = 100;
+
+            // GSTIN check
+            if (gstData == null || gstData.getGstin() == null) {
+                score -= 40;
+            }
+
+            // GST Status
+            if (!"Active".equalsIgnoreCase(gstData.getSts())) {
+                score -= 30;
+            }
+
+            // GST Rate validation
+            List<Double> validRates = List.of(0.0, 5.0, 12.0, 18.0, 28.0);
+            if (!validRates.contains(gst.getGstTaxPercentage())) {
+                score -= 20;
+            }
+
+            // State mismatch rule
+            if (!gst.getBuyerStateCode().equals(gst.getSellerStateCode()) && gst.getIgst() == 0) {
+                score -= 25;
+            }
+
+            return Math.max(score, 0);
         }
     }
 

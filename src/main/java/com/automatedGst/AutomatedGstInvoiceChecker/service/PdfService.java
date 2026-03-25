@@ -1,10 +1,8 @@
 package com.automatedGst.AutomatedGstInvoiceChecker.service;
 
 import com.automatedGst.AutomatedGstInvoiceChecker.entity.GstTracking;
-import com.itextpdf.text.Document;
-import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.PdfWriter;
-import org.springframework.ai.reader.pdf.config.ParagraphManager;
 import org.springframework.stereotype.Service;
 
 import java.io.FileOutputStream;
@@ -38,6 +36,8 @@ public class PdfService {
 
             document.add(new Paragraph("Compliance Status: " + gst.getComplianceStatus()));
             document.add(new Paragraph("Remarks: " + gst.getComplianceRemarks()));
+            document.add(new Paragraph("Risk Level: " + gst.getRiskLevel()));
+            document.add(new Paragraph("Compliance Score: " + gst.getComplianceScore()));
 
             document.close();
 

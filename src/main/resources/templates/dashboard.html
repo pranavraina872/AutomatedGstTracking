@@ -36,6 +36,8 @@
             <th>SGST</th>
             <th>Total</th>
             <th>Status</th>
+            <th>Risk</th>
+            <th>Score</th>
             <th>Actions</th>
         </tr>
         </thead>
@@ -62,6 +64,8 @@
                 <span th:if="${g.complianceStatus == 'FAIL'}"
                       class="badge bg-danger">FAIL</span>
             </td>
+            <td th:text="${g.riskLevel}"></td>
+            <td th:text="${g.complianceScore}"></td>
 
             <!-- Actions -->
             <td>
@@ -73,6 +77,7 @@
                     📄 PDF
                 </a>
             </td>
+
         </tr>
         </tbody>
     </table>
